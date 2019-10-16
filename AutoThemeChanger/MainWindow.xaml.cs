@@ -46,20 +46,45 @@ namespace AutoThemeChanger
 
         private void LanguageHelper()
         {
-            if (String.IsNullOrWhiteSpace(Properties.Settings.Default.Language.ToString()))
+            try
             {
-                Properties.Settings.Default.Language = CultureInfo.CurrentCulture.TwoLetterISOLanguageName.ToString();
+                if (String.IsNullOrWhiteSpace(Properties.Settings.Default.Language.ToString()))
+                {
+                    Properties.Settings.Default.Language = CultureInfo.CurrentCulture.TwoLetterISOLanguageName.ToString();
+                }
+            } 
+            catch
+            {
+                Properties.Settings.Default.Language = "en";
             }
             CultureInfo.CurrentUICulture = new CultureInfo(Properties.Settings.Default.Language, true);
         }
 
         private void SystemTimeFormat()
         {
-            string sysFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern;
-            sysFormat = sysFormat.Substring(0, sysFormat.IndexOf(":"));
-            if (sysFormat.Equals("hh") | sysFormat.Equals("h"))
+            try
             {
-                Properties.Settings.Default.AlterTime = true;
+                Console.WriteLine(CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern);
+                string sysFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern;
+                sysFormat = sysFormat.Substring(0, sysFormat.IndexOf(":"));
+                if (sysFormat.Equals("hh") | sysFormat.Equals("h"))
+                {
+                    Properties.Settings.Default.AlterTime = true;
+                }
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                string error = "Error ocurred in: SystemTimeFormat - ArgumentOutOfRangeException" + "\n\n" + "Please click on YES and post a Screenshot of this Error-Message <3" + "\n\n" + CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern;
+                MsgBox msg = new MsgBox(error, Properties.Resources.errorOcurredTitle, "error", "yesno")
+                {
+                    Owner = GetWindow(this)
+                };
+                msg.ShowDialog();
+                var result = msg.DialogResult;
+                if (result == true)
+                {
+                    System.Diagnostics.Process.Start("https://github.com/Armin2208/Windows-Auto-Night-Mode/issues/49");
+                }
             }
         }
 
